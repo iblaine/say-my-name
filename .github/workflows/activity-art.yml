@@ -1,0 +1,43 @@
+# .github/workflows/activity-art.yml
+name: GitHub Activity Art
+
+on:
+  # Run automatically at 12:00 UTC every day
+  schedule:
+    - cron: '0 12 * * *'
+  
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name to spell out'
+        required: true
+        default: 'BLAINE'
+      start_date:
+        description: 'Start date (YYYY-MM-DD, must be a Sunday)'
+        required: true
+        default: '2025-05-11'
+
+jobs:
+  create-activity-pattern:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Create activity pattern
+        run: |
+          # For scheduled runs, use default values
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            NAME="BLAINE"
+            START_DATE="2025-05-11"
+          else
+            NAME="${{ github.event.inputs.name }}"
+            START_DATE="${{ github.event.inputs.start_date }}"
+          fi
+          python github_activity_art.py "$NAME" "$START_DATE"
